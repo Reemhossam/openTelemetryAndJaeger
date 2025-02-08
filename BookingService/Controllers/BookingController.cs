@@ -67,27 +67,5 @@ namespace BookingService.Controllers
       }
 
     }
-
-    //private readonly IModel _channel;
-
-    //public BookingController(IModel channel)
-    //{
-    //  _channel = channel;
-    //}
-
-    //[HttpPost]
-    //public IActionResult Book()
-    //{
-    //  // Send a message to RabbitMQ
-    //  var message = "Booking request received";
-    //  var body = Encoding.UTF8.GetBytes(message);
-
-    //  _channel.BasicPublish(exchange: "",
-    //                       routingKey: "bookingQueue",
-    //                       basicProperties: null,
-    //                       body: body);
-
-    //  return Ok("Booking processed");
-  //}
   }
 }

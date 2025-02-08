@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
+using Infrastructure.TraceLibrary;
+using TraceLibrary;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,27 +15,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddHostedService<AvailabilityService>();
-// Add OpenTelemetry Tracing
+builder.Services.AddSingleton<TraceService>(provider =>
+{
+  return TraceService.GetInstance(builder.Configuration); // Using Singleton instance
+});
+builder.Services.AddInitialTraceConfiguration("Availability", builder.Configuration);   //(1)
 
-// Add services to the container.
-builder.Services.AddOpenTelemetry()
-    .WithTracing(builder => builder
-        .AddAspNetCoreInstrumentation(opt =>
-        {
-          opt.EnrichWithHttpRequest = (activity, httpRequest) => activity.SetBaggage("UserId", "1234");
-        }
-        )
-        .AddHttpClientInstrumentation()
-        //.AddSqlClientInstrumentation()
-        .AddConsoleExporter()
-        .AddJaegerExporter()
-        //.AddSource("AvailabilitySource")
-        .SetResourceBuilder(
-            ResourceBuilder.CreateDefault()
-                 .AddService(serviceName: "AvailabilityService")))
-    //.AddService(serviceName: "AvailabilityServiceSpan")))
-    .StartWithHost();
 
 builder.Services.AddSingleton<IModel>(sp =>
 {
@@ -50,6 +37,15 @@ if (app.Environment.IsDevelopment())
   app.UseSwagger();
   app.UseSwaggerUI();
 }
+
+app.UseMiddleware<InstrumentationMiddleware>("Availability", new List<string> { "UserId" }); // Add custom middleware
+
+app.MapGet("/toggleTracing", (TraceService traceService) =>
+{
+  bool isTracingEnabled = traceService.IsTracingEnabled();
+  traceService.ToggleTracing(!isTracingEnabled, "Availability", builder.Configuration); // Toggle the state
+  return Task.FromResult(isTracingEnabled ? "Tracing disabled" : "Tracing enabled");
+});
 
 app.UseHttpsRedirection();
 
