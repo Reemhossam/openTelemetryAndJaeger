@@ -21,13 +21,14 @@ builder.Services.AddInitialTraceConfiguration("new_custom", builder.Configuratio
 
 builder.Services.AddHttpClient();  // Registering HttpClient for DI
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.Seq("http://localhost:5341")
-    .Enrich.FromLogContext()
-    .CreateLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .WriteTo.Console()
+//    .WriteTo.Seq("http://localhost:5341")
+//    .Enrich.FromLogContext()
+//    .CreateLogger();
 
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, loggerConfig)=> 
+  loggerConfig.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
 
