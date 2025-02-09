@@ -6,6 +6,8 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using Infrastructure.TraceLibrary;
 using TraceLibrary;
+using Infrastructure.LoggingLibrary;
+using Microsoft.Extensions.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,6 +30,13 @@ builder.Services.AddSingleton<IModel>(sp =>
   var connection = factory.CreateConnection();
   return connection.CreateModel();
 });
+
+builder.Services.AddSingleton<Infrastructure.LoggingLibrary.LoggingManager>(sp =>
+    new LoggingManager(builder.Configuration));
+
+builder.Services.AddSingleton<Infrastructure.LoggingLibrary.LogLevelController>();
+
+builder.Services.AddScoped<MyService>();
 
 var app = builder.Build();
 

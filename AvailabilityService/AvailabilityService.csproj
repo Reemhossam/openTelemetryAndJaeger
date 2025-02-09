@@ -21,6 +21,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.LoggingLibrary\Infrastructure.LoggingLibrary.csproj" />
     <ProjectReference Include="..\TraceLibrary\Infrastructure.TraceLibrary.csproj" />
   </ItemGroup>
 
